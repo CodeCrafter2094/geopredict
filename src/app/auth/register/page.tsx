@@ -61,7 +61,16 @@ export default function RegisterPage() {
           role: 'user',
         });
 
-        if (profileError) console.error('Profile creation error:', profileError);
+        if (profileError) {
+          // If profile creation fails, still redirect but log error
+          console.error('Profile creation error:', profileError);
+          // Try to update if exists
+          await supabase.from('users').upsert({
+            id: data.user.id,
+            username: formData.username,
+            email: formData.email,
+          }, { onConflict: 'id' });
+        }
       }
 
       router.push('/');
